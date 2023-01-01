@@ -8,13 +8,13 @@
 // Modification Copyright (c) 2022 Emin, GPL3
 
 // Returns position of the character in the string or -1 if not found
-static int findchar(char *s, int c) {
+static int find_char(char *s, int c) {
     char *p = strchr(s, c);
     return (p ? p - s : -1);
 }
 
 // Get the next character from the input file.
-static int next(void) {
+static int get_next_char(void) {
     int c;
     if (Putback) {
         c = Putback;
@@ -37,9 +37,9 @@ static void putback(int c) {
 // Return the first character we do need to deal with.
 static int skip(void) {
     int c;
-    c = next();
+    c = get_next_char();
     while (isspace(c))
-        c = next();
+        c = get_next_char();
     return c;
 }
 
@@ -51,7 +51,7 @@ static int scanint(int c) {
     // Convert each character into an int value
     while (isdigit(c)) {
         val = val * 10 + c - '0';
-        c = next();
+        c = get_next_char();
     }
 
     // We hit a non-integer character, put it back.
@@ -70,7 +70,7 @@ int scan(struct token *t) {
     // Determine the token based on the input character
     switch (c) {
         case EOF:
-            return 0;
+            return t->token = T_EOF;
         case '+':
             t->token = T_PLUS;
             break;

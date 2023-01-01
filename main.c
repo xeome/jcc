@@ -11,9 +11,7 @@
 
 // Compiler setup and top-level execution
 // Copyright (c) 2019 Warren Toomey, GPL3
-
-// Compiler setup and top-level execution
-// Copyright (c) 2019 Warren Toomey, GPL3
+// Modification Copyright (c) 2022 Emin, GPL3
 
 // Initialise global variables
 static void init() {
@@ -27,39 +25,23 @@ static void usage(char *prog) {
     exit(1);
 }
 
-// List of printable tokens
-char *tokstr[] = {"+", "-", "*", "/", "intlit"};
-
-// Loop scanning in all the tokens in the input file.
-// Print out details of each token found.
-static void scanfile() {
-    struct token T;
-
-    while (scan(&T)) {
-        printf("Token %s", tokstr[T.token]);
-        if (T.token == T_INTLIT)
-            printf(", value %d", T.intvalue);
-        printf("\n");
-    }
-}
-
 // Main program: check arguments and print a usage
 // if we don't have an argument. Open up the input
 // file and call scanfile() to scan the tokens in it.
 void main(int argc, char *argv[]) {
+    struct ASTnode *n;
+
     if (argc != 2)
         usage(argv[0]);
 
-    // Initialise global variables
     init();
 
-    // Open the input file
     if ((Infile = fopen(argv[1], "r")) == NULL) {
         fprintf(stderr, "Unable to open %s: %s\n", argv[1], strerror(errno));
         exit(1);
     }
-
-    // Scan the input file
-    scanfile();
+    scan(&Token);       // Get the first token from the input
+    n = parse_bin_expr();   // Parse the expression in the file
+    printf("Result: %d\n", interpretAST(n));    // Calculate the final result
     exit(0);
 }

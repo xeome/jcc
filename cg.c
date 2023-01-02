@@ -12,12 +12,12 @@
 // and their names
 static struct {
     int is_available;
-    char *name;
+    char* name;
 } regs[NUM_REGS] = {
-        { .is_available = 1, .name = "%r8" },
-        { .is_available = 1, .name = "%r9" },
-        { .is_available = 1, .name = "%r10" },
-        { .is_available = 1, .name = "%r11" },
+    {.is_available = 1, .name = "%r8"},
+    {.is_available = 1, .name = "%r9"},
+    {.is_available = 1, .name = "%r10"},
+    {.is_available = 1, .name = "%r11"},
 };
 
 // Set all registers as available
@@ -53,43 +53,44 @@ static void free_register(int reg) {
 // Print out the assembly preamble
 void cg_preamble() {
     free_all_registers();
-    fputs("\t.text\n"
-          ".LC0:\n"
-          "\t.string\t\"%d\\n\"\n"
-          "printint:\n"
-          "\tpushq\t%rbp\n"
-          "\tmovq\t%rsp, %rbp\n"
-          "\tsubq\t$16, %rsp\n"
-          "\tmovl\t%edi, -4(%rbp)\n"
-          "\tmovl\t-4(%rbp), %eax\n"
-          "\tmovl\t%eax, %esi\n"
-          "\tleaq	.LC0(%rip), %rdi\n"
-          "\tmovl	$0, %eax\n"
-          "\tcall	printf@PLT\n"
-          "\tnop\n"
-          "\tleave\n"
-          "\tret\n"
-          "\n"
-          "\t.globl\tmain\n"
-          "\t.type\tmain, @function\n"
-          "main:\n"
-          "\tpushq\t%rbp\n"
-          "\tmovq	%rsp, %rbp\n",
-          Outfile);
+    fputs(
+        "\t.text\n"
+        ".LC0:\n"
+        "\t.string\t\"%d\\n\"\n"
+        "printint:\n"
+        "\tpushq\t%rbp\n"
+        "\tmovq\t%rsp, %rbp\n"
+        "\tsubq\t$16, %rsp\n"
+        "\tmovl\t%edi, -4(%rbp)\n"
+        "\tmovl\t-4(%rbp), %eax\n"
+        "\tmovl\t%eax, %esi\n"
+        "\tleaq	.LC0(%rip), %rdi\n"
+        "\tmovl	$0, %eax\n"
+        "\tcall	printf@PLT\n"
+        "\tnop\n"
+        "\tleave\n"
+        "\tret\n"
+        "\n"
+        "\t.globl\tmain\n"
+        "\t.type\tmain, @function\n"
+        "main:\n"
+        "\tpushq\t%rbp\n"
+        "\tmovq	%rsp, %rbp\n",
+        Outfile);
 }
 
 // Print out the assembly postamble
 void cg_postamble() {
-    fputs("\tmovl	$0, %eax\n"
-          "\tpopq	%rbp\n"
-          "\tret\n",
-          Outfile);
+    fputs(
+        "\tmovl	$0, %eax\n"
+        "\tpopq	%rbp\n"
+        "\tret\n",
+        Outfile);
 }
 
 // Load an integer literal value into a register.
 // Return the number of the register
 int cg_load(int value) {
-
     // Get a new register
     int r = alloc_register();
 
@@ -101,31 +102,30 @@ int cg_load(int value) {
 // Perform a binary operation on two registers and return
 // the number of the register with the result
 int cg_binop(int r1, int r2, int op) {
-    char *instr;
-
-    // Determine the assembly instruction to use based on the opcode
     switch (op) {
         case '+':
-            instr = "addq";
-            break;
+            fprintf(Outfile, "\taddq\t%s, %s\n", regs[r1].name, regs[r2].name);
+            free_register(r1);
+            return r2;
         case '-':
-            instr = "subq";
-            break;
+            fprintf(Outfile, "\tsubq\t%s, %s\n", regs[r2].name, regs[r1].name);
+            free_register(r2);
+            return r1;
         case '*':
-            instr = "imulq";
-            break;
+            fprintf(Outfile, "\timulq\t%s, %s\n", regs[r1].name, regs[r2].name);
+            free_register(r1);
+            return r2;
         case '/':
-            instr = "idivq";
-            break;
+            fprintf(Outfile, "\tmovq\t%s,%%rax\n", regs[r1].name);
+            fprintf(Outfile, "\tcqo\n");
+            fprintf(Outfile, "\tidivq\t%s\n", regs[r2].name);
+            fprintf(Outfile, "\tmovq\t%%rax,%s\n", regs[r1].name);
+            free_register(r2);
+            return r1;
         default:
             fprintf(stderr, "Invalid binary operator: %c\n", op);
             exit(1);
     }
-
-    // Print out the code to perform the operation
-    fprintf(Outfile, "\t%s\t%s, %s\n", instr, regs[r1].name, regs[r2].name);
-    free_register(r1);
-    return r2;
 }
 
 // Print out the assembly to print out a register value
@@ -133,4 +133,3 @@ void cg_print_register(int r) {
     fprintf(Outfile, "\tmovq\t%s, %%rdi\n", regs[r].name);
     fputs("\tcall\tprintint\n", Outfile);
 }
-

@@ -7,12 +7,12 @@
 // Modification Copyright (c) 2022 Emin, GPL3
 
 // List of AST operators
-static char *ASTop[] = { "+", "-", "*", "/" };
+static char* ASTop[] = {"+", "-", "*", "/"};
 
 // Given an AST, interpret the
 // operators in it and return
 // a final value.
-int interpretAST(struct ASTnode *n) {
+int interpretAST(struct ASTnode* n) {
     int leftval, rightval;
 
     // Get the left and right sub-tree values

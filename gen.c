@@ -8,12 +8,12 @@
 
 // Given an AST, generate
 // assembly code recursively
-static int genAST(struct ASTnode *n) {
+int gen_AST(struct ASTnode* n) {
     int leftreg, rightreg;
     if (n->left)
-        leftreg = genAST(n->left);
+        leftreg = gen_AST(n->left);
     if (n->right)
-        rightreg = genAST(n->right);
+        rightreg = gen_AST(n->right);
     switch (n->op) {
         case A_ADD:
             return cg_binop(leftreg, rightreg, '+');
@@ -31,10 +31,23 @@ static int genAST(struct ASTnode *n) {
     }
 }
 
-void generate_code(struct ASTnode *n) {
+void gen_preamble() {
+    cg_preamble();
+}
+void gen_postamble() {
+    cg_postamble();
+}
+void gen_free_regs() {
+    free_all_registers();
+}
+void gen_print_int(int reg) {
+    cg_print_register(reg);
+}
+
+void generate_code(struct ASTnode* n) {
     int reg;
     cg_preamble();
-    reg = genAST(n);
+    reg = gen_AST(n);
     cg_print_register(reg);
     cg_postamble();
 }

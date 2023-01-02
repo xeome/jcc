@@ -31,21 +31,28 @@ static void usage(char *prog) {
 void main(int argc, char *argv[]) {
     struct ASTnode *n;
 
-    //if (argc != 2)
-    //    usage(argv[0]);
+    if (argc != 2)
+        usage(argv[0]);
 
     init();
 
-    //if ((Infile = fopen(argv[1], "r")) == NULL) {
-    //    fprintf(stderr, "Unable to open %s: %s\n", argv[1], strerror(errno));
-    //    exit(1);
-    //}
+    // Open up the input file
+    if ((Infile = fopen(argv[1], "r")) == NULL) {
+        fprintf(stderr, "Unable to open %s: %s\n", argv[1], strerror(errno));
+        exit(1);
+    }
 
-    // Infile static for debugging
-    Infile = fopen("../input01", "r");
+    // Create the output file
+    if ((Outfile = fopen("out.s", "w")) == NULL) {
+        fprintf(stderr, "Unable to create out.s: %s\n", strerror(errno));
+        exit(1);
+   }
 
-    scan(&Token);         // Get the first token from the input
-    n = parse_bin_expr(0); // Parse the expression in the file
-    printf("Result: %d\n", interpretAST(n)); // Calculate the final result
+    scan(&Token);                    // Get the first token from the input
+    n = parse_bin_expr(0);           // Parse the expression in the file
+    printf("%d\n", interpretAST(n)); // Calculate the final result
+    generate_code(n);
+
+    fclose(Outfile);
     exit(0);
 }

@@ -43,28 +43,54 @@ static struct ASTnode *parse_primary(void) {
     }
 }
 
-// Return an AST tree whose root is a binary operator
-struct ASTnode *parse_bin_expr(void) {
-    struct ASTnode *n, *left, *right;
-    int nodetype;
+// Operator precedence for each token
+static int OpPrec[] = {0, 10, 10, 20, 20, 0};
 
-    // Get the integer literal on the left. This is the left subtree of the tree.
+// Check that we have a binary operator and
+// return its precedence.
+static int op_precedence(int tokentype) {
+    int prec = OpPrec[tokentype];
+    if (prec == 0) {
+        fprintf(stderr, "syntax error on line %d, token %d\n", Line, tokentype);
+        exit(1);
+    }
+    return (prec);
+}
+
+
+// Return an AST tree for a binary operator expression.
+// ptp is the precedence of the previous token.
+struct ASTnode *parse_bin_expr(int ptp) {
+    // left and right operands of the binary operator
+    struct ASTnode *left, *right;
+    // the current token's type
+    int tokentype;
+
+    // get the left operand
     left = parse_primary();
+    // get the current token's type
+    tokentype = Token.token;
 
-    // If no tokens left, return just the left node
-    if (Token.token == T_EOF)
+    // if there are no more tokens, return the left node
+    if (tokentype == T_EOF)
         return (left);
 
-    // Convert the token into a node type
-    nodetype = get_ast_op(Token.token);
+    // while the current token's precedence is greater than the previous token's precedence
+    while (op_precedence(tokentype) > ptp) {
+        // get the next token
+        scan(&Token);
+        // Recursively call parse_bin_expr() with the precedence of our token to build a sub tree
+        right = parse_bin_expr(OpPrec[tokentype]);
+        // create a new AST node with the left and right operands as children and the current token's type as the root
+        left = create_ast_node(get_ast_op(tokentype), left, right, 0);
+        // update the current token's type
+        tokentype = Token.token;
+        // if there are no more tokens, return the left operand
+        if (tokentype == T_EOF)
+            return (left);
+    }
 
-    // Get the next token in
-    scan(&Token);
-
-    // Recursively get the right-hand tree
-    right = parse_bin_expr();
-
-    // Now build a tree with both sub-trees
-    n = create_ast_node(nodetype, left, right, 0);
-    return (n);
+    // return the left operand when the current token's precedence is the same or lower
+    return (left);
 }
+

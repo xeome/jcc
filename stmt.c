@@ -19,7 +19,7 @@
 //      ;
 
 void print_statement(void) {
-    struct ASTnode *tree;
+    struct ASTnode* tree;
     int reg;
 
     // Match a 'print' as the first token
@@ -66,10 +66,8 @@ void assignment_statement(void) {
     semi();
 }
 
-
 // Parse one or more statements
 void statements(void) {
-
     while (1) {
         switch (Token.token) {
             case T_PRINT:

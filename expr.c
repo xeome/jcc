@@ -30,7 +30,7 @@ static int get_ast_op(int token_type) {
 
 // Parse a primary factor and return an
 // AST node representing it.
-static struct ASTnode *parse_primary(void) {
+static struct ASTnode* parse_primary(void) {
     struct ASTnode* n = NULL;
     int id;
 

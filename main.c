@@ -7,6 +7,7 @@
 
 // Compiler setup and top-level execution
 // Copyright (c) 2019 Warren Toomey, GPL3
+// Modification Copyright (c) 2022 Emin, GPL3
 
 // Initialise global variables
 static void init() {

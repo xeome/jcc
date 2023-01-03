@@ -15,7 +15,7 @@ static void init() {
 }
 
 // Print out a usage if started incorrectly
-static void usage(char *prog) {
+static void usage(char* prog) {
     fprintf(stderr, "Usage: %s infile\n", prog);
     exit(1);
 }
@@ -23,8 +23,7 @@ static void usage(char *prog) {
 // Main program: check arguments and print a usage
 // if we don't have an argument. Open up the input
 // file and call scanfile() to scan the tokens in it.
-void main(int argc, char *argv[]) {
-
+void main(int argc, char* argv[]) {
     if (argc != 2)
         usage(argv[0]);
 
@@ -41,10 +40,10 @@ void main(int argc, char *argv[]) {
         exit(1);
     }
 
-    scan(&Token);			// Get the first token from the input
-    gen_preamble();		// Output the preamble
-    statements();			// Parse the statements in the input
-    gen_postamble();		// Output the postamble
-    fclose(Outfile);		// Close the output file and exit
+    scan(&Token);     // Get the first token from the input
+    gen_preamble();   // Output the preamble
+    statements();     // Parse the statements in the input
+    gen_postamble();  // Output the postamble
+    fclose(Outfile);  // Close the output file and exit
     exit(0);
 }

@@ -6,12 +6,6 @@
 // Copyright (c) 2019 Warren Toomey, GPL3
 // Modification Copyright (c) 2022 Emin, GPL3
 
-// Returns position of the character in the string or -1 if not found
-static int find_char(char* s, int c) {
-    char* p = strchr(s, c);
-    return (p ? p - s : -1);
-}
-
 // Get the next character from the input file.
 static int get_next_char(void) {
     int c;
@@ -45,7 +39,7 @@ static int skip(void) {
 // Scan and return an integer literal value from the input file. Store the
 // value as a string in Text.
 static int scanint(int c) {
-    int k, val = 0;
+    int val = 0;
 
     // Convert each character into an int value
     while (isdigit(c)) {
@@ -68,8 +62,7 @@ static int scanident(int c, char* buf, int lim) {
         // Error if we hit the identifier length limit,
         // else append to buf[] and get next character
         if (lim - 1 == i) {
-            printf("identifier too long on line %d\n", Line);
-            exit(1);
+            fatal("Identifier too long");
         } else if (i < lim - 1) {
             buf[i++] = c;
         }
@@ -88,12 +81,16 @@ static int scanident(int c, char* buf, int lim) {
 // to waste time strcmp()ing against all the keywords.
 static int keyword(char* s) {
     switch (*s) {
+        case 'i':
+            if (!strcmp(s, "int"))
+                return (T_INT);
+            break;
         case 'p':
             if (!strcmp(s, "print"))
                 return (T_PRINT);
             break;
     }
-    return (0);
+    return 0;
 }
 
 // Scan and return the next token found in the input. Return 1 if token valid,
@@ -123,6 +120,9 @@ int scan(struct token* t) {
         case ';':
             t->token = T_SEMI;
             break;
+        case '=':
+            t->token = T_EQUALS;
+            break;
         default:
 
             // If it's a digit, scan the
@@ -141,13 +141,12 @@ int scan(struct token* t) {
                     t->token = tokentype;
                     break;
                 }
-                // Not a recognised keyword, so an error for now
-                printf("Unrecognised symbol %s on line %d\n", Text, Line);
-                exit(1);
+                // Otherwise, return an identifier token
+                t->token = T_IDENT;
+                break;
             }
             // The character isn't part of any recognised token, error
-            printf("Unrecognised character %c on line %d\n", c, Line);
-            exit(1);
+            fatalc("Unrecognised character", c);
     }
 
     // We found a token

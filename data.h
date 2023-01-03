@@ -11,3 +11,4 @@ extern_ FILE* Infile;            // Input file handle
 extern_ FILE* Outfile;           // Output file handle
 extern_ struct token Token;      // Current token
 extern_ char Text[TEXTLEN + 1];  // Last identifier scanned
+extern_ struct symtable Gsym[NSYMBOLS]; // Global symbol table

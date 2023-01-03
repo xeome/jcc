@@ -3,4 +3,4 @@ project(jcc C)
 
 set(CMAKE_C_STANDARD 11)
 
-add_executable(jcc main.c defs.h scan.c data.h decl.h tree.c expr.c interp.c gen.c cg.c stmt.c misc.c)
+add_executable(jcc main.c defs.h scan.c data.h decl.h tree.c expr.c gen.c cg.c stmt.c misc.c sym.c decl.c)

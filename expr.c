@@ -28,21 +28,35 @@ static int get_ast_op(int token_type) {
     }
 }
 
-// Parse a primary factor and return an AST node representing it.
-static struct ASTnode* parse_primary(void) {
-    struct ASTnode* n;
+// Parse a primary factor and return an
+// AST node representing it.
+static struct ASTnode *parse_primary(void) {
+    struct ASTnode* n = NULL;
+    int id;
 
-    // For an INTLIT token, make a leaf AST node for it and scan in the next
-    // token. Otherwise, print a syntax error message and exit the program.
     switch (Token.token) {
         case T_INTLIT:
+            // For an INTLIT token, make a leaf AST node for it.
             n = create_ast_leaf(A_INTLIT, Token.intvalue);
-            scan(&Token);
-            return (n);
+            break;
+
+        case T_IDENT:
+            // Check that this identifier exists
+            id = find_glob(Text);
+            if (id == -1)
+                fatals("Unknown variable", Text);
+
+            // Make a leaf AST node for it
+            n = create_ast_leaf(A_IDENT, id);
+            break;
+
         default:
-            fprintf(stderr, "Syntax error on line %d\n", Line);
-            exit(1);
+            fatald("Syntax error, token", Token.token);
     }
+
+    // Scan in the next token and return the leaf node
+    scan(&Token);
+    return (n);
 }
 
 // Operator precedence for each token
@@ -82,7 +96,7 @@ struct ASTnode* parse_bin_expr(int ptp) {
         // get the next token
         scan(&Token);
         // Recursively call parse_bin_expr() with the precedence of our token to
-        // build a sub tree
+        // build a subtree
         right = parse_bin_expr(OpPrec[tokentype]);
         // create a new AST node with the left and right operands as children
         // and the current token's type as the root

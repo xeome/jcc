@@ -8,12 +8,12 @@
 
 // Given an AST, generate
 // assembly code recursively
-int gen_AST(struct ASTnode* n) {
+int gen_AST(struct ASTnode* n, int reg) {
     int leftreg, rightreg;
     if (n->left)
-        leftreg = gen_AST(n->left);
+        leftreg = gen_AST(n->left, -1);
     if (n->right)
-        rightreg = gen_AST(n->right);
+        rightreg = gen_AST(n->right, leftreg);
     switch (n->op) {
         case A_ADD:
             return cg_binop(leftreg, rightreg, '+');
@@ -24,9 +24,15 @@ int gen_AST(struct ASTnode* n) {
         case A_DIVIDE:
             return cg_binop(leftreg, rightreg, '/');
         case A_INTLIT:
-            return cg_load(n->intvalue);
+            return (cg_load_int(n->v.intvalue));
+        case A_IDENT:
+            return (cg_load_glob(Gsym[n->v.id].name));
+        case A_LVIDENT:
+            return (cg_store_glob(reg, Gsym[n->v.id].name));
+        case A_ASSIGN:
+            return rightreg;
         default:
-            fprintf(stderr, "Unknown AST operator %d\n", n->op);
+            fatald("Unknown AST operator", n->op);
             exit(1);
     }
 }
@@ -41,13 +47,9 @@ void gen_free_regs() {
     free_all_registers();
 }
 void gen_print_int(int reg) {
-    cg_print_register(reg);
+    cg_print_int(reg);
 }
 
-void generate_code(struct ASTnode* n) {
-    int reg;
-    cg_preamble();
-    reg = gen_AST(n);
-    cg_print_register(reg);
-    cg_postamble();
+void gen_glob_sym(char* s) {
+    cg_glob_sym(s);
 }

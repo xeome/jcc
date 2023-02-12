@@ -6,8 +6,8 @@
 // Copyright (c) 2019 Warren Toomey, GPL3
 // Modification Copyright (c) 2022 Emin, GPL3
 
-// Get the next character from the input file.
-static int get_next_char(void) {
+// Get the next character from the input file. If putback is true, then we are putting back a character, and we should not get a new one.
+static int next(void) {
     int c;
     if (Putback) {
         c = Putback;
@@ -30,9 +30,9 @@ static void putback(int c) {
 // Return the first character we do need to deal with.
 static int skip(void) {
     int c;
-    c = get_next_char();
+    c = next();
     while (isspace(c))
-        c = get_next_char();
+        c = next();
     return c;
 }
 
@@ -44,7 +44,7 @@ static int scanint(int c) {
     // Convert each character into an int value
     while (isdigit(c)) {
         val = val * 10 + c - '0';
-        c = get_next_char();
+        c = next();
     }
 
     // We hit a non-integer character, put it back.
@@ -66,7 +66,7 @@ static int scanident(int c, char* buf, int lim) {
         } else if (i < lim - 1) {
             buf[i++] = c;
         }
-        c = get_next_char();
+        c = next();
     }
     // We hit a non-valid character, put it back.
     // NUL-terminate the buf[] and return the length
@@ -120,8 +120,37 @@ int scan(struct token* t) {
         case ';':
             t->token = T_SEMI;
             break;
+
         case '=':
-            t->token = T_EQUALS;
+            if ((c = next()) == '=') {
+                t->token = T_EQ;
+            } else {
+                putback(c);
+                t->token = T_ASSIGN;
+            }
+            break;
+        case '!':
+            if ((c = next()) == '=') {
+                t->token = T_NE;
+            } else {
+                fatalc("Unrecognised character", c);
+            }
+            break;
+        case '<':
+            if ((c = next()) == '=') {
+                t->token = T_LE;
+            } else {
+                putback(c);
+                t->token = T_LT;
+            }
+            break;
+        case '>':
+            if ((c = next()) == '=') {
+                t->token = T_GE;
+            } else {
+                putback(c);
+                t->token = T_GT;
+            }
             break;
         default:
 

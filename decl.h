@@ -31,6 +31,13 @@ void cg_print_int(int reg);
 int cg_load_glob(char* id);
 int cg_store_glob(int r, char* id);
 void cg_glob_sym(char* id);
+int cg_equal(int r1, int r2);
+int cg_not_equal(int r1, int r2);
+int cg_less_than(int r1, int r2);
+int cg_greater_than(int r1, int r2);
+int cg_less_equal(int r1, int r2);
+int cg_greater_equal(int r1, int r2);
+
 
 // expr.c
 struct ASTnode* parse_bin_expr(int ptp);

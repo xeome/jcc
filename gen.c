@@ -15,14 +15,18 @@ int gen_AST(struct ASTnode* n, int reg) {
     if (n->right)
         rightreg = gen_AST(n->right, leftreg);
     switch (n->op) {
+            // Binary operations
         case A_ADD:
-            return cg_binop(leftreg, rightreg, '+');
         case A_SUBTRACT:
-            return cg_binop(leftreg, rightreg, '-');
         case A_MULTIPLY:
-            return cg_binop(leftreg, rightreg, '*');
         case A_DIVIDE:
-            return cg_binop(leftreg, rightreg, '/');
+        case A_EQ:
+        case A_NE:
+        case A_LT:
+        case A_GT:
+        case A_LE:
+        case A_GE:
+            return cg_binop(leftreg, rightreg, n->op);
         case A_INTLIT:
             return (cg_load_int(n->v.intvalue));
         case A_IDENT:

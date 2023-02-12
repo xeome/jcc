@@ -8,24 +8,9 @@
 
 // Convert a token into an AST operation
 static int get_ast_op(int token_type) {
-    // Return the corresponding AST operation for the given token type
-    switch (token_type) {
-        case T_PLUS:
-            return (A_ADD);
-        case T_MINUS:
-            return (A_SUBTRACT);
-        case T_STAR:
-            return (A_MULTIPLY);
-        case T_SLASH:
-            return (A_DIVIDE);
-        case T_INTLIT:
-            return (A_INTLIT);
-
-        default:
-            fprintf(stderr, "Unknown token type %d in get_ast_op\n",
-                    token_type);
-            exit(1);
-    }
+    if (token_type > T_EOF && token_type < T_INTLIT)
+        return (token_type);
+    fatald("Syntax error, token", token_type);
 }
 
 // Parse a primary factor and return an
@@ -59,15 +44,22 @@ static struct ASTnode* parse_primary(void) {
     return (n);
 }
 
-// Operator precedence for each token
-static int OpPrec[] = {0, 10, 10, 20, 20, 0};
+// Operator precedence for each token. Must
+// match up with the order of tokens in defs.h
+static int OpPrec[] = {
+    0,  10, 10,     // T_EOF, T_PLUS, T_MINUS
+    20, 20,         // T_STAR, T_SLASH
+    30, 30,         // T_EQ, T_NE
+    40, 40, 40, 40  // T_LT, T_GT, T_LE, T_GE
+};
 
 // Check that we have a binary operator and
 // return its precedence.
-static int op_precedence(int tokentype) {
-    int prec = OpPrec[tokentype];
+static int op_precedence(int token_type) {
+    int prec = OpPrec[token_type];
     if (prec == 0) {
-        fprintf(stderr, "syntax error on line %d, token %d\n", Line, tokentype);
+        fprintf(stderr, "syntax error on line %d, token %d\n", Line,
+                token_type);
         exit(1);
     }
     return (prec);

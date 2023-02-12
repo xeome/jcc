@@ -20,6 +20,17 @@ static struct {
     {.is_available = 1, .name = "%r11"},
 };
 
+// Byte registers for storing low-order bytes
+static struct {
+    int is_available;
+    char* name;
+} bregs[NUM_REGS] = {
+    {.is_available = 1, .name = "%r8b"},
+    {.is_available = 1, .name = "%r9b"},
+    {.is_available = 1, .name = "%r10b"},
+    {.is_available = 1, .name = "%r11b"},
+};
+
 // Set all registers as available
 void free_all_registers(void) {
     for (int i = 0; i < NUM_REGS; i++) {
@@ -112,27 +123,46 @@ int cg_load_int(int value) {
 
 // Perform a binary operation on two registers and return
 // the number of the register with the result
+// TODO: Divide stuff into functions
 int cg_binop(int r1, int r2, int op) {
     switch (op) {
-        case '+':
+        case A_ADD:
             fprintf(Outfile, "\taddq\t%s, %s\n", regs[r1].name, regs[r2].name);
             free_register(r1);
             return r2;
-        case '-':
+        case A_SUBTRACT:
             fprintf(Outfile, "\tsubq\t%s, %s\n", regs[r2].name, regs[r1].name);
             free_register(r2);
             return r1;
-        case '*':
+        case A_MULTIPLY:
             fprintf(Outfile, "\timulq\t%s, %s\n", regs[r1].name, regs[r2].name);
             free_register(r1);
             return r2;
-        case '/':
+        case A_DIVIDE:
             fprintf(Outfile, "\tmovq\t%s,%%rax\n", regs[r1].name);
             fprintf(Outfile, "\tcqo\n");
             fprintf(Outfile, "\tidivq\t%s\n", regs[r2].name);
             fprintf(Outfile, "\tmovq\t%%rax,%s\n", regs[r1].name);
             free_register(r2);
             return r1;
+        case A_EQ:
+            cg_equal(r1, r2);
+            return r2;
+        case A_NE:
+            cg_not_equal(r1, r2);
+            return r2;
+        case A_LT:
+            cg_less_than(r1, r2);
+            return r2;
+        case A_GT:
+            cg_greater_than(r1, r2);
+            return r2;
+        case A_LE:
+            cg_less_equal(r1, r2);
+            return r2;
+        case A_GE:
+            cg_greater_equal(r1, r2);
+            return r2;
         default:
             fprintf(stderr, "Invalid binary operator: %c\n", op);
             exit(1);
@@ -155,4 +185,34 @@ int cg_store_glob(int r, char* identifier) {
 // Generate a global symbol
 void cg_glob_sym(char* sym) {
     fprintf(Outfile, "\t.comm\t%s,8,8\n", sym);
+}
+
+// Compare two registers. Set the zero flag if they are equal and return the
+// number of the register with the result of the comparison (0 or 1)
+static int cgcompare(int r1, int r2, char* how) {
+    fprintf(Outfile, "\tcmpq\t%s, %s\n", regs[r2].name, regs[r1].name);
+    fprintf(Outfile, "\t%s\t%s\n", how, bregs[r2].name);
+    fprintf(Outfile, "\tandq\t$255,%s\n", regs[r2].name);
+    free_register(r1);
+    return (r2);
+}
+// Generate code for a relational operator and return a register number with the
+// result
+int cg_equal(int r1, int r2) {
+    return (cgcompare(r1, r2, "sete"));
+}
+int cg_not_equal(int r1, int r2) {
+    return (cgcompare(r1, r2, "setne"));
+}
+int cg_less_than(int r1, int r2) {
+    return (cgcompare(r1, r2, "setl"));
+}
+int cg_greater_than(int r1, int r2) {
+    return (cgcompare(r1, r2, "setg"));
+}
+int cg_less_equal(int r1, int r2) {
+    return (cgcompare(r1, r2, "setle"));
+}
+int cg_greater_equal(int r1, int r2) {
+    return (cgcompare(r1, r2, "setge"));
 }

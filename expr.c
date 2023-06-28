@@ -4,7 +4,7 @@
 
 // Parsing of expressions
 // Copyright (c) 2019 Warren Toomey, GPL3
-// Modification Copyright (c) 2022 Emin, GPL3
+// Modification (c) 2022 Emin, GPL3
 
 // Convert a token into an AST operation
 static int get_ast_op(int token_type) {

@@ -4,6 +4,7 @@
 
 // Symbol table management functions
 // Copyright (c) 2019 Warren Toomey, GPL3
+// Modification (c) 2022 Emin, GPL3
 
 static int global_amount = 0;  // Position of next free global symbol slot
 

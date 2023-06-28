@@ -38,7 +38,6 @@ int cg_greater_than(int r1, int r2);
 int cg_less_equal(int r1, int r2);
 int cg_greater_equal(int r1, int r2);
 
-
 // expr.c
 struct ASTnode* parse_bin_expr(int ptp);
 
@@ -46,17 +45,17 @@ struct ASTnode* parse_bin_expr(int ptp);
 void statements(void);
 
 // misc.c
-void match(int t, char *what);
+void match(int t, char* what);
 void semi(void);
 void ident(void);
-void fatal(char *s);
-void fatals(char *s1, char *s2);
-void fatald(char *s, int d);
-void fatalc(char *s, int c);
+void fatal(char* s);
+void fatals(char* s1, char* s2);
+void fatald(char* s, int d);
+void fatalc(char* s, int c);
 
 // sym.c
-int find_glob(char *s);
-int add_glob(char *name);
+int find_glob(char* s);
+int add_glob(char* name);
 
 // decl.c
 void var_declaration(void);

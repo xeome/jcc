@@ -4,9 +4,10 @@
 
 // Structure and enum definitions
 // Copyright (c) 2019 Warren Toomey, GPL3
-// Modification Copyright (c) 2022 Emin, GPL3
+// Modification (c) 2022 Emin, GPL3
 
-// Get the next character from the input file. If putback is true, then we are putting back a character, and we should not get a new one.
+// Get the next character from the input file. If putback is true, then we are
+// putting back a character, and we should not get a new one.
 static int next(void) {
     int c;
     if (Putback) {
@@ -14,8 +15,8 @@ static int next(void) {
         Putback = 0;
         return c;
     }
-    // InFile is a global variable
-    c = fgetc(Infile);
+    // inputFile is a global variable
+    c = fgetc(inputFile);
     if (c == '\n')
         Line++;
     return c;

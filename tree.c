@@ -4,7 +4,7 @@
 
 // AST tree functions
 // Copyright (c) 2019 Warren Toomey, GPL3
-// Modification Copyright (c) 2022 Emin, GPL3
+// Modification (c) 2022 Emin, GPL3
 
 // Given an operator and two AST subtrees, return an AST tree with that operator
 // in the root. The integer value is only used for A_INTLIT operators.
